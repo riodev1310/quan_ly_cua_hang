@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Đọc dataset
+# Đọc dataset từ URL trực tuyến
 @st.cache_data
 def load_data():
-    return pd.read_csv("https://raw.githubusercontent.com/riodev1310/rio_datasets/refs/heads/main/Sample-Superstore.csv")
+    url = "https://gist.githubusercontent.com/nnbphuong/38db511db14542f3ba9ef16e69d3814c/raw/Superstore.csv"
+    return pd.read_csv(url)
 
 df = load_data()
 
@@ -29,9 +29,11 @@ st.pyplot(fig)
 st.subheader("Top 10 Khách hàng theo Doanh thu")
 top_customers = df.groupby('Customer Name')['Sales'].sum().nlargest(10).reset_index()
 fig, ax = plt.subplots()
-sns.barplot(data=top_customers, x='Customer Name', y='Sales', ax=ax)
+ax.bar(top_customers['Customer Name'], top_customers['Sales'])
 ax.set_title('Top 10 Khách hàng')
-ax.tick_params(axis='x', rotation=45)
+ax.set_xlabel('Customer Name')
+ax.set_ylabel('Sales')
+plt.xticks(rotation=45, ha='right')
 st.pyplot(fig)
 
 # Tìm kiếm khách hàng

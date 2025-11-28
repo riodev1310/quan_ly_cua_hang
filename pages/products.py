@@ -1,12 +1,13 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Đọc dataset
+# Đọc dataset từ URL trực tuyến
 @st.cache_data
 def load_data():
-    return pd.read_csv("https://raw.githubusercontent.com/riodev1310/rio_datasets/refs/heads/main/Sample-Superstore.csv")
+    url = "https://gist.githubusercontent.com/nnbphuong/38db511db14542f3ba9ef16e69d3814c/raw/Superstore.csv"
+    return pd.read_csv(url)
 
 df = load_data()
 
@@ -20,19 +21,32 @@ st.dataframe(products)
 # Doanh thu theo Danh mục
 st.subheader("Doanh thu theo Danh mục và Phân danh mục")
 sales_by_cat = df.groupby(['Category', 'Sub-Category'])['Sales'].sum().reset_index()
+categories = sales_by_cat['Category'].unique()
+sub_categories = sales_by_cat['Sub-Category'].unique()
 fig, ax = plt.subplots()
-sns.barplot(data=sales_by_cat, x='Category', y='Sales', hue='Sub-Category', ax=ax)
+width = 0.35 / len(sub_categories)  # Điều chỉnh width nếu cần
+x = np.arange(len(categories))
+for i, sub in enumerate(sub_categories):
+    sub_data = sales_by_cat[sales_by_cat['Sub-Category'] == sub]
+    ax.bar(x + i * width, sub_data['Sales'], width, label=sub)
 ax.set_title('Doanh thu theo Danh mục')
-ax.tick_params(axis='x', rotation=45)
+ax.set_xlabel('Category')
+ax.set_ylabel('Sales')
+ax.set_xticks(x)
+ax.set_xticklabels(categories)
+ax.legend()
+plt.xticks(rotation=45, ha='right')
 st.pyplot(fig)
 
 # Top sản phẩm bán chạy
 st.subheader("Top 10 Sản phẩm theo Số lượng Bán")
 top_products = df.groupby('Product Name')['Quantity'].sum().nlargest(10).reset_index()
 fig, ax = plt.subplots()
-sns.barplot(data=top_products, x='Product Name', y='Quantity', ax=ax)
+ax.bar(top_products['Product Name'], top_products['Quantity'])
 ax.set_title('Top 10 Sản phẩm Bán chạy')
-ax.tick_params(axis='x', rotation=45)
+ax.set_xlabel('Product Name')
+ax.set_ylabel('Quantity')
+plt.xticks(rotation=45, ha='right')
 st.pyplot(fig)
 
 # Tìm kiếm sản phẩm

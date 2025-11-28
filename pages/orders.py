@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Đọc dataset
+# Đọc dataset từ URL trực tuyến
 @st.cache_data
 def load_data():
-    return pd.read_csv("https://raw.githubusercontent.com/riodev1310/rio_datasets/refs/heads/main/Sample-Superstore.csv")
+    url = "https://gist.githubusercontent.com/nnbphuong/38db511db14542f3ba9ef16e69d3814c/raw/Superstore.csv"
+    return pd.read_csv(url)
 
 df = load_data()
 
@@ -23,8 +23,10 @@ df['Order Date'] = pd.to_datetime(df['Order Date'])
 df['Year'] = df['Order Date'].dt.year
 orders_by_year = df.groupby('Year')['Order ID'].nunique().reset_index()
 fig, ax = plt.subplots()
-sns.lineplot(data=orders_by_year, x='Year', y='Order ID', ax=ax)
+ax.plot(orders_by_year['Year'], orders_by_year['Order ID'])
 ax.set_title('Số lượng Đơn hàng theo Năm')
+ax.set_xlabel('Year')
+ax.set_ylabel('Number of Orders')
 st.pyplot(fig)
 
 # Tìm kiếm đơn hàng
